@@ -9,10 +9,10 @@ variacion_100 = 7  # Variacion en los ultimos 30 minutos en porcentaje si tiene 
 variacionfast = 2  # Variacion en los ultimos 2 minutos en porcentaje
 
 client = Client('','', tld='com')
-bot = Bot(token='5652395974:AAEmaW0W19eyZU6_aF8DKwQcZE5mSzHI1bM')  # reemplaza 'YOUR_BOT_TOKEN' con el token de tu bot
+bot = Bot(token='YOUR_BOT_TOKEN ')  # reemplaza 'YOUR_BOT_TOKEN' con el token de tu bot
 
 async def send_message(text):
-    await bot.send_message(chat_id='1027853008', text=text)  # reemplaza '1027853008' con tu ID de chat
+    await bot.send_message(chat_id='ID-CHAT', text=text)  # reemplaza 'ID-CHAT' con tu ID de chat
 
 def play_alert_sound():
     winsound.Beep(2500, 1000)  # Beep at 2500 Hz for 1000 ms
