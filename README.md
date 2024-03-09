@@ -1,4 +1,4 @@
-### Movement Alerts (Alertas de Movimiento)
+### Movement Alerts (Alertas de Movimiento) + botpara telegram
 
 Este script fue desarrollado para detectar movimientos del mercado de criptomonedas en futuros de binance, con este script usted podra tener en vivo y en directo una alerta cuando un crypto activo este teniendo un movimiento inusal tanto al alza o la baja.
 
