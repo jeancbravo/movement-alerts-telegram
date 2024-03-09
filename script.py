@@ -1,11 +1,21 @@
 from binance.client import Client
+from telegram import Bot
 import time
+import winsound
+import asyncio
 
 variacion = 5  # Variacion en los ultimos 30 minutos en porcentaje
 variacion_100 = 7  # Variacion en los ultimos 30 minutos en porcentaje si tiene menos de 100k de volumen
 variacionfast = 2  # Variacion en los ultimos 2 minutos en porcentaje
 
 client = Client('','', tld='com')
+bot = Bot(token='5652395974:AAEmaW0W19eyZU6_aF8DKwQcZE5mSzHI1bM')  # reemplaza 'YOUR_BOT_TOKEN' con el token de tu bot
+
+async def send_message(text):
+    await bot.send_message(chat_id='1027853008', text=text)  # reemplaza '1027853008' con tu ID de chat
+
+def play_alert_sound():
+    winsound.Beep(2500, 1000)  # Beep at 2500 Hz for 1000 ms
 
 def buscarticks():
     ticks = []
@@ -36,7 +46,7 @@ def human_format(volumen):
         volumen /= 1000.0
     return '%.2f%s' % (volumen, ['', 'K', 'M', 'G', 'T', 'P'][magnitude])
 
-def porcentaje_klines(tick, klines, knumber):
+async def porcentaje_klines(tick, klines, knumber):
     inicial = float(klines[0][4])
     final = float(klines[knumber][4])
 
@@ -47,12 +57,10 @@ def porcentaje_klines(tick, klines, knumber):
             info = infoticks(tick)
             volumen = float(info['quoteVolume'])
             if volumen > 100000000 or result >= variacion_100:
-                print('LONG: '+tick)
-                print('Variacion: ' + str(result) + '%')
-                print('Volumen: ' + human_format(volumen))
-                print('Precio max: ' + info['highPrice'])
-                print('Precio min: ' + info['lowPrice'])
-                print('')
+                message = f'LONG: {tick}\nVariacion: {result}%\nVolumen: {human_format(volumen)}\nPrecio max: {info["highPrice"]}\nPrecio min: {info["lowPrice"]}\n'
+                print(message)
+                await send_message(message)
+                play_alert_sound()
 
     # SHORT
     if final > inicial:
@@ -61,12 +69,10 @@ def porcentaje_klines(tick, klines, knumber):
             info = infoticks(tick)
             volumen = float(info['quoteVolume'])
             if volumen > 100000000 or result >= variacion_100:
-                print('SHORT: ' + tick)
-                print('Variacion: ' + str(result) + '%')
-                print('Volumen: ' + human_format(volumen))
-                print('Precio max: ' + info['highPrice'])
-                print('Precio min: ' + info['lowPrice'])
-                print('')
+                message = f'SHORT: {tick}\nVariacion: {result}%\nVolumen: {human_format(volumen)}\nPrecio max: {info["highPrice"]}\nPrecio min: {info["lowPrice"]}\n'
+                print(message)
+                await send_message(message)
+                play_alert_sound()
 
     # FAST
     if knumber >= 3:
@@ -77,26 +83,25 @@ def porcentaje_klines(tick, klines, knumber):
             if result >= variacionfast:
                 info = infoticks(tick)
                 volumen = float(info['quoteVolume'])
-                print('FAST SHORT!: ' + tick)
-                print('Variacion: ' + str(result) + '%')
-                print('Volumen: ' + human_format(volumen))
-                print('Precio max: ' + info['highPrice'])
-                print('Precio min: ' + info['lowPrice'])
-                print('')
+                message = f'FAST SHORT!: {tick}\nVariacion: {result}%\nVolumen: {human_format(volumen)}\nPrecio max: {info["highPrice"]}\nPrecio min: {info["lowPrice"]}\n'
+                print(message)
+                await send_message(message)
+                play_alert_sound()
 
+async def main():
+    while True:
+        ticks = buscarticks()
+        print('Escaneando monedas...')
+        print('')
+        for tick in ticks:
+            klines = get_klines(tick)
+            knumber = len(klines)
+            if knumber > 0:
+                knumber = knumber - 1
+                await porcentaje_klines(tick, klines, knumber)
+        print('Esperando 30 segundos...')
+        print('')
+        await asyncio.sleep(30)
 
-
-
-while True:
-    ticks = buscarticks()
-    print('Escaneando monedas...')
-    print('')
-    for tick in ticks:
-        klines = get_klines(tick)
-        knumber = len(klines)
-        if knumber > 0:
-            knumber = knumber - 1
-            porcentaje_klines(tick, klines, knumber)
-    print('Esperando 30 segundos...')
-    print('')
-    time.sleep(30)
+# Ejecuta la función principal
+asyncio.run(main())
